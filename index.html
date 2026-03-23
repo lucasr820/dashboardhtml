@@ -8,851 +8,708 @@
   <meta name="apple-mobile-web-app-title" content="FreelanceOS" />
   <meta name="theme-color" content="#0A0A0F" />
   <title>FreelanceOS</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-      height: 100%;
-      height: -webkit-fill-available;
-      background: #0A0A0F;
-    }
-
-    body {
-      height: 100%;
-      height: -webkit-fill-available;
-      overflow: hidden;
-      background: #0A0A0F;
-      font-family: 'DM Sans', sans-serif;
-      color: #EEEEF5;
-    }
-
-    #root {
-      height: 100%;
-      height: -webkit-fill-available;
-      display: flex;
-      flex-direction: column;
-    }
-
-    input, select, textarea, button {
-      font-family: 'DM Sans', sans-serif;
-      -webkit-appearance: none;
-      appearance: none;
-      border-radius: 0;
-    }
-
-    /* Prevent iOS zoom on focus — font-size must be >= 16px */
-    input, select, textarea {
-      font-size: 16px;
-    }
-
-    button {
-      touch-action: manipulation;
-      cursor: pointer;
-    }
-
-    /* Hide scrollbar but keep scroll */
-    .scroll-area {
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+    html { height: 100%; height: -webkit-fill-available; background: #0A0A0F; }
+    body { height: 100%; height: -webkit-fill-available; overflow: hidden; background: #0A0A0F; font-family: 'DM Sans', sans-serif; color: #EEEEF5; }
+    #root { height: 100%; height: -webkit-fill-available; display: flex; flex-direction: column; }
+    input, select, textarea, button { font-family: 'DM Sans', sans-serif; -webkit-appearance: none; appearance: none; border-radius: 0; }
+    input, select, textarea { font-size: 16px; }
+    button { touch-action: manipulation; cursor: pointer; }
+    .scroll-area { overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
     .scroll-area::-webkit-scrollbar { display: none; }
-
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1) opacity(0.4);
-    }
-
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(0.4); }
     input::placeholder { color: #3E3E5A; }
-
     select option { background: #1A1A24; }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.4); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
   </style>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div id="root"></div>
+<div id="root"></div>
+<script type="text/babel">
+  const { useState, useEffect } = React;
 
-  <script type="text/babel">
-    const { useState } = React;
+  /* ── SUPABASE CLIENT ── */
+  const sb = supabase.createClient(
+    "https://mtyepinxntcamrkqglnt.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10eWVwaW54bnRjYW1ya3FnbG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzAwNDIsImV4cCI6MjA4OTgwNjA0Mn0.aQbMq5RuRqPBAxFBjuHmQ9wbQDORhfuQ8SVCAOpcLys"
+  );
 
-    const C = {
-      bg:         "#0A0A0F",
-      surface:    "#13131A",
-      surfaceAlt: "#1A1A24",
-      border:     "#252535",
-      accent:     "#7C5CFC",
-      accentG:    "#7C5CFC33",
-      accentS:    "#A084FD",
-      green:      "#22D3A5",
-      orange:     "#FF7A3D",
-      red:        "#FF4D6A",
-      text:       "#EEEEF5",
-      muted:      "#7878A0",
-      faint:      "#3E3E5A",
+  /* ── CORES ── */
+  const C = {
+    bg:"#0A0A0F", surface:"#13131A", surfaceAlt:"#1A1A24", border:"#252535",
+    accent:"#7C5CFC", accentG:"#7C5CFC33", accentS:"#A084FD",
+    green:"#22D3A5", orange:"#FF7A3D", red:"#FF4D6A",
+    text:"#EEEEF5", muted:"#7878A0", faint:"#3E3E5A",
+  };
+
+  /* ── FORMATTERS ── */
+  const fmtTime = (s) => {
+    const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
+  };
+  const fmtCurrency = (v) => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);
+  const fmtDate = (d) => new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"short"}).format(new Date(d+"T12:00:00"));
+
+  /* ── SHARED UI ── */
+  const Spinner = ({size=18,color=C.accent}) => (
+    <div style={{width:size,height:size,border:`2px solid ${C.border}`,borderTopColor:color,borderRadius:"50%",animation:"spin 0.7s linear infinite",flexShrink:0}} />
+  );
+
+  const Badge = ({children,color=C.accent}) => (
+    <span style={{background:color+"22",color,border:`1px solid ${color}44`,borderRadius:6,padding:"2px 8px",fontSize:11,fontWeight:600,letterSpacing:"0.04em",whiteSpace:"nowrap"}}>{children}</span>
+  );
+
+  const Card = ({children,style={}}) => (
+    <div style={{background:C.surface,border:`1px solid ${C.border}`,borderRadius:16,padding:16,animation:"fadeIn 0.2s ease",...style}}>{children}</div>
+  );
+
+  const Avatar = ({letter,color,size=36}) => (
+    <div style={{width:size,height:size,borderRadius:Math.floor(size/3),background:color+"33",border:`2px solid ${color}66`,display:"flex",alignItems:"center",justifyContent:"center",color,fontWeight:700,fontSize:Math.floor(size*0.38),flexShrink:0,fontFamily:"'Syne',sans-serif"}}>{letter}</div>
+  );
+
+  const StatCard = ({label,value,sub,color=C.accent,icon}) => (
+    <Card style={{flex:1}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
+        <span style={{fontSize:18}}>{icon}</span>
+        <div style={{width:7,height:7,borderRadius:"50%",background:color,boxShadow:`0 0 7px ${color}`,marginTop:5}} />
+      </div>
+      <div style={{fontSize:22,fontWeight:700,color:C.text,fontFamily:"'Syne',sans-serif",lineHeight:1}}>{value}</div>
+      <div style={{fontSize:11,color:C.muted,marginTop:4}}>{label}</div>
+      {sub && <div style={{fontSize:10,color,marginTop:2}}>{sub}</div>}
+    </Card>
+  );
+
+  const Toast = ({msg,type="error"}) => (
+    <div style={{position:"fixed",bottom:40,left:"50%",transform:"translateX(-50%)",background:type==="ok"?C.green+"22":C.red+"22",border:`1px solid ${type==="ok"?C.green:C.red}44`,color:type==="ok"?C.green:C.red,borderRadius:12,padding:"10px 20px",fontSize:13,fontWeight:600,zIndex:999,whiteSpace:"nowrap",animation:"fadeIn 0.2s ease",boxShadow:"0 4px 24px #00000088"}}>{msg}</div>
+  );
+
+  const inputSt = (extra={}) => ({
+    background:C.surfaceAlt,border:`1px solid ${C.border}`,color:C.text,
+    borderRadius:10,padding:"12px 14px",fontSize:16,outline:"none",
+    width:"100%",WebkitAppearance:"none",...extra,
+  });
+
+  /* ════════════════════════════════════════
+     AUTH SCREEN
+  ════════════════════════════════════════ */
+  function AuthScreen({onAuth}) {
+    const [mode,setMode]   = useState("login");
+    const [email,setEmail] = useState("");
+    const [pass,setPass]   = useState("");
+    const [name,setName]   = useState("");
+    const [busy,setBusy]   = useState(false);
+    const [err,setErr]     = useState("");
+    const [ok,setOk]       = useState("");
+
+    const submit = async () => {
+      setErr(""); setOk("");
+      if (!email||!pass) { setErr("Preencha e-mail e senha."); return; }
+      if (mode==="signup"&&!name.trim()) { setErr("Informe seu nome."); return; }
+      if (pass.length<6) { setErr("Senha mínima de 6 caracteres."); return; }
+      setBusy(true);
+      try {
+        if (mode==="login") {
+          const {data,error} = await sb.auth.signInWithPassword({email,password:pass});
+          if (error) throw error;
+          onAuth(data.user);
+        } else {
+          const {data,error} = await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+          if (error) throw error;
+          if (data.user&&!data.session) setOk("Conta criada! Verifique seu e-mail para confirmar.");
+          else if (data.session) onAuth(data.user);
+        }
+      } catch(e) {
+        const m=e.message||"";
+        if (m.includes("Invalid login")) setErr("E-mail ou senha incorretos.");
+        else if (m.includes("already registered")) setErr("E-mail já cadastrado.");
+        else setErr(m||"Erro inesperado. Tente novamente.");
+      } finally { setBusy(false); }
     };
 
-    const fmtTime = (s) => {
-      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
-      return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`;
-    };
+    return (
+      <div style={{display:"flex",flexDirection:"column",height:"100%",paddingTop:"env(safe-area-inset-top)",paddingLeft:"env(safe-area-inset-left)",paddingRight:"env(safe-area-inset-right)",background:C.bg}}>
+        <div className="scroll-area" style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",padding:"32px 24px"}}>
 
-    const fmtCurrency = (v) =>
-      new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
-
-    const fmtDate = (d) =>
-      new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(new Date(d));
-
-    /* ── tiny components ── */
-
-    const Badge = ({ children, color = C.accent }) => (
-      <span style={{
-        background: color + "22", color, border: `1px solid ${color}44`,
-        borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 600,
-        letterSpacing: "0.04em", whiteSpace: "nowrap",
-      }}>{children}</span>
-    );
-
-    const Card = ({ children, style = {}, onClick }) => (
-      <div onClick={onClick} style={{
-        background: C.surface, border: `1px solid ${C.border}`,
-        borderRadius: 16, padding: 16,
-        cursor: onClick ? "pointer" : "default",
-        transition: "border-color 0.2s",
-        ...style,
-      }}>{children}</div>
-    );
-
-    const Avatar = ({ letter, color, size = 36 }) => (
-      <div style={{
-        width: size, height: size, borderRadius: Math.floor(size / 3),
-        background: color + "33", border: `2px solid ${color}66`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        color, fontWeight: 700, fontSize: Math.floor(size * 0.38), flexShrink: 0,
-        fontFamily: "'Syne', sans-serif",
-      }}>{letter}</div>
-    );
-
-    const StatCard = ({ label, value, sub, color = C.accent, icon }) => (
-      <Card style={{ flex: 1 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-          <span style={{ fontSize: 18 }}>{icon}</span>
-          <div style={{ width: 7, height: 7, borderRadius: "50%", background: color, boxShadow: `0 0 7px ${color}`, marginTop: 5 }} />
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: C.text, fontFamily: "'Syne', sans-serif", lineHeight: 1 }}>{value}</div>
-        <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{label}</div>
-        {sub && <div style={{ fontSize: 10, color, marginTop: 2 }}>{sub}</div>}
-      </Card>
-    );
-
-    const inputSt = (extra = {}) => ({
-      background: C.surfaceAlt, border: `1px solid ${C.border}`,
-      color: C.text, borderRadius: 10, padding: "12px 14px",
-      fontSize: 16, outline: "none", width: "100%",
-      WebkitAppearance: "none", ...extra,
-    });
-
-    /* ── CLIENTS ── */
-
-    function ClientsModule({ clients, setClients, projects, sessions }) {
-      const [open, setOpen] = useState(false);
-      const [form, setForm] = useState({ name: "", color: "#7C5CFC" });
-
-      const add = () => {
-        if (!form.name.trim()) return;
-        setClients(c => [...c, { id: Date.now(), name: form.name, color: form.color, avatar: form.name[0].toUpperCase() }]);
-        setForm({ name: "", color: "#7C5CFC" });
-        setOpen(false);
-      };
-
-      const stats = (id) => {
-        const ps = projects.filter(p => p.clientId === id);
-        const hrs = ps.reduce((s, p) => s + sessions.filter(x => x.projectId === p.id).reduce((a, x) => a + x.duration, 0) / 3600, 0);
-        return { projects: ps.length, hours: hrs.toFixed(1) };
-      };
-
-      return (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Clientes</h2>
-            <button onClick={() => setOpen(o => !o)} style={{
-              background: C.accentG, color: C.accent, border: `1px solid ${C.accent}44`,
-              borderRadius: 10, padding: "8px 16px", fontWeight: 600, fontSize: 14,
-            }}>+ Novo</button>
+          <div style={{textAlign:"center",marginBottom:40}}>
+            <div style={{fontFamily:"'Syne',sans-serif",fontSize:34,fontWeight:800,letterSpacing:"-1px",color:C.text}}>Freelance<span style={{color:C.accent}}>OS</span></div>
+            <div style={{fontSize:13,color:C.muted,marginTop:8}}>Controle total do seu trabalho</div>
           </div>
 
-          {open && (
-            <Card style={{ marginBottom: 14 }}>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="Nome do cliente" style={{ ...inputSt(), flex: 1 }} />
-                <input type="color" value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))}
-                  style={{ width: 44, height: 44, border: "none", background: "none", cursor: "pointer", borderRadius: 8, padding: 0 }} />
-                <button onClick={add} style={{
-                  background: C.green, color: "#000", border: "none",
-                  borderRadius: 10, padding: "12px 18px", fontWeight: 700, fontSize: 16,
-                }}>✓</button>
-              </div>
-            </Card>
-          )}
-
-          {clients.length === 0 && (
-            <div style={{ textAlign: "center", padding: "40px 0", color: C.faint, fontSize: 14 }}>
-              Nenhum cliente ainda.
-            </div>
-          )}
-
-          {clients.map(cl => {
-            const s = stats(cl.id);
-            return (
-              <Card key={cl.id} style={{ marginBottom: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <Avatar letter={cl.avatar} color={cl.color} size={44} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Syne', sans-serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cl.name}</div>
-                    <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
-                      {s.projects} projetos · {s.hours}h registradas
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      );
-    }
-
-    /* ── LOG HOURS FORM ── */
-
-    function LogHoursForm({ projectId, onSave, onCancel }) {
-      const today = new Date().toISOString().split("T")[0];
-      const [hours, setHours] = useState("");
-      const [minutes, setMinutes] = useState("");
-      const [date, setDate] = useState(today);
-      const [note, setNote] = useState("");
-
-      const save = () => {
-        const secs = (parseFloat(hours) || 0) * 3600 + (parseFloat(minutes) || 0) * 60;
-        if (secs <= 0) return;
-        onSave({ projectId, date, duration: secs, note });
-      };
-
-      const st = { ...inputSt(), borderRadius: 8, background: C.bg };
-
-      return (
-        <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 10 }}>
-            Lançar horas
-          </div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>Horas</div>
-              <input type="number" min="0" value={hours} onChange={e => setHours(e.target.value)}
-                placeholder="0" style={st} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>Minutos</div>
-              <input type="number" min="0" max="59" value={minutes} onChange={e => setMinutes(e.target.value)}
-                placeholder="0" style={st} />
-            </div>
-            <div style={{ flex: 2 }}>
-              <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>Data</div>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                style={{ ...st, colorScheme: "dark" }} />
-            </div>
-          </div>
-          <input value={note} onChange={e => setNote(e.target.value)}
-            placeholder="Descrição (opcional)" style={{ ...st, marginBottom: 10 }} />
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={save} style={{
-              flex: 1, background: C.green, color: "#000", border: "none",
-              borderRadius: 10, padding: "13px", fontWeight: 700, fontSize: 15,
-            }}>✓ Salvar</button>
-            <button onClick={onCancel} style={{
-              flex: 1, background: C.surfaceAlt, color: C.muted, border: `1px solid ${C.border}`,
-              borderRadius: 10, padding: "13px", fontWeight: 600, fontSize: 15,
-            }}>Cancelar</button>
-          </div>
-        </div>
-      );
-    }
-
-    /* ── PROJECTS ── */
-
-    function ProjectsModule({ projects, setProjects, clients, sessions, setSessions, deleteSession }) {
-      const [openNew, setOpenNew] = useState(false);
-      const [loggingId, setLoggingId] = useState(null);
-      const [expandedId, setExpandedId] = useState(null);
-      const [form, setForm] = useState({ clientId: "", name: "", budget: "" });
-
-      const add = () => {
-        if (!form.name || !form.clientId) return;
-        setProjects(p => [...p, {
-          id: Date.now(), clientId: Number(form.clientId), name: form.name,
-          budget: Number(form.budget) || 0, status: "active",
-        }]);
-        setForm({ clientId: "", name: "", budget: "" });
-        setOpenNew(false);
-      };
-
-      const saveSession = ({ projectId, date, duration, note }) => {
-        setSessions({ projectId, date, duration, note });
-        setLoggingId(null);
-      };
-
-      const stats = (id) => {
-        const s = sessions.filter(x => x.projectId === id);
-        return { hours: (s.reduce((a, x) => a + x.duration, 0) / 3600).toFixed(1), count: s.length };
-      };
-
-      return (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Serviços</h2>
-            <button onClick={() => setOpenNew(o => !o)} style={{
-              background: C.accentG, color: C.accent, border: `1px solid ${C.accent}44`,
-              borderRadius: 10, padding: "8px 16px", fontWeight: 600, fontSize: 14,
-            }}>+ Novo</button>
+          <div style={{display:"flex",background:C.surface,borderRadius:12,padding:4,marginBottom:24,border:`1px solid ${C.border}`}}>
+            {["login","signup"].map(m=>(
+              <button key={m} onClick={()=>{setMode(m);setErr("");setOk("");}} style={{flex:1,padding:"11px",border:"none",background:mode===m?C.accent:"none",color:mode===m?"#fff":C.muted,borderRadius:9,fontWeight:700,fontSize:14,transition:"all 0.2s"}}>
+                {m==="login"?"Entrar":"Criar conta"}
+              </button>
+            ))}
           </div>
 
-          {openNew && (
-            <Card style={{ marginBottom: 14 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <select value={form.clientId} onChange={e => setForm(f => ({ ...f, clientId: e.target.value }))}
-                  style={{ ...inputSt(), color: form.clientId ? C.text : C.muted }}>
-                  <option value="">Selecionar cliente</option>
-                  {clients.map(cl => <option key={cl.id} value={cl.id}>{cl.name}</option>)}
-                </select>
-                <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="Nome do serviço" style={inputSt()} />
-                <input type="number" value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}
-                  placeholder="Budget total (R$)" style={inputSt()} />
-                <button onClick={add} style={{
-                  background: C.green, color: "#000", border: "none",
-                  borderRadius: 10, padding: "13px", fontWeight: 700, fontSize: 15,
-                }}>Adicionar Serviço</button>
-              </div>
-            </Card>
-          )}
-
-          {projects.length === 0 && (
-            <div style={{ textAlign: "center", padding: "40px 0", color: C.faint, fontSize: 14 }}>
-              Nenhum serviço ainda.
-            </div>
-          )}
-
-          {projects.map(proj => {
-            const cl = clients.find(c => c.id === proj.clientId);
-            const s = stats(proj.id);
-            const pct = proj.budget > 0 ? Math.min((parseFloat(s.hours) / (proj.budget / 100)) * 100, 100) : 0;
-            const logging = loggingId === proj.id;
-            const expanded = expandedId === proj.id;
-            const projSessions = sessions.filter(x => x.projectId === proj.id);
-
-            return (
-              <Card key={proj.id} style={{ marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
-                  {cl && <Avatar letter={cl.avatar} color={cl.color} size={38} />}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "'Syne', sans-serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{proj.name}</div>
-                    <div style={{ fontSize: 12, color: C.muted }}>{cl?.name}</div>
-                  </div>
-                  <Badge color={proj.status === "active" ? C.green : C.muted}>
-                    {proj.status === "active" ? "Ativo" : "Concluído"}
-                  </Badge>
-                </div>
-
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-end", marginBottom: proj.budget > 0 ? 12 : 0 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: C.muted, marginBottom: 2 }}>Horas</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, fontFamily: "'Space Mono', monospace" }}>{s.hours}h</div>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: C.muted, marginBottom: 2 }}>Sessões</div>
-                    <div style={{ fontSize: 15, fontWeight: 700 }}>{s.count}</div>
-                  </div>
-                  {proj.status === "active" && !logging && (
-                    <button onClick={() => { setLoggingId(proj.id); setExpandedId(null); }} style={{
-                      background: C.accentG, color: C.accent, border: `1px solid ${C.accent}44`,
-                      borderRadius: 8, padding: "8px 14px", fontWeight: 600, fontSize: 13,
-                      whiteSpace: "nowrap",
-                    }}>+ Horas</button>
-                  )}
-                </div>
-
-                {proj.budget > 0 && (
-                  <div style={{ marginBottom: 0 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, color: C.muted }}>Budget</span>
-                      <span style={{ fontSize: 11, color: C.muted }}>{fmtCurrency(proj.budget)}</span>
-                    </div>
-                    <div style={{ background: C.surfaceAlt, borderRadius: 4, height: 6, overflow: "hidden" }}>
-                      <div style={{
-                        height: "100%", width: `${pct}%`,
-                        background: pct > 80 ? C.red : C.green,
-                        borderRadius: 4, transition: "width 0.5s ease",
-                      }} />
-                    </div>
-                  </div>
-                )}
-
-                {/* Registros do serviço */}
-                {projSessions.length > 0 && !logging && (
-                  <div style={{ marginTop: 12 }}>
-                    <button
-                      onClick={() => setExpandedId(expanded ? null : proj.id)}
-                      style={{
-                        background: "none", border: "none", color: C.muted,
-                        fontSize: 11, fontWeight: 600, letterSpacing: "0.07em",
-                        textTransform: "uppercase", cursor: "pointer", padding: 0,
-                        display: "flex", alignItems: "center", gap: 4,
-                      }}
-                    >
-                      {expanded ? "▾" : "▸"} Registros ({projSessions.length})
-                    </button>
-
-                    {expanded && (
-                      <div style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 10 }}>
-                        {projSessions.map((sess, i) => {
-                          const last = i === projSessions.length - 1;
-                          return (
-                            <div key={sess.id} style={{
-                              display: "flex", alignItems: "center", gap: 8,
-                              paddingBottom: last ? 0 : 8, marginBottom: last ? 0 : 8,
-                              borderBottom: last ? "none" : `1px solid ${C.border}`,
-                            }}>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>{sess.note || "Sem descrição"}</div>
-                                <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
-                                  {fmtDate(sess.date)} · {fmtTime(sess.duration)}
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  if (window.confirm("Remover este registro?")) deleteSession(sess.id);
-                                }}
-                                style={{
-                                  background: C.red + "18", border: `1px solid ${C.red}33`,
-                                  color: C.red, borderRadius: 6, width: 28, height: 28,
-                                  fontSize: 13, display: "flex", alignItems: "center",
-                                  justifyContent: "center", flexShrink: 0,
-                                }}>✕</button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {logging && (
-                  <LogHoursForm projectId={proj.id} onSave={saveSession} onCancel={() => setLoggingId(null)} />
-                )}
-              </Card>
-            );
-          })}
-        </div>
-      );
-    }
-
-    /* ── DASHBOARD ── */
-
-    function DashboardModule({ projects, clients, sessions, deleteSession }) {
-      const today = new Date().toISOString().split("T")[0];
-      const month = today.slice(0, 7);
-      const todaySess = sessions.filter(s => s.date === today);
-      const monthSess = sessions.filter(s => s.date.startsWith(month));
-
-      const hrs = (arr) => arr.reduce((a, s) => a + s.duration, 0) / 3600;
-
-      const last7 = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(); d.setDate(d.getDate() - (6 - i));
-        const key = d.toISOString().split("T")[0];
-        return {
-          date: key,
-          hours: hrs(sessions.filter(s => s.date === key)),
-          label: d.toLocaleDateString("pt-BR", { weekday: "short" }).slice(0, 3),
-        };
-      });
-      const maxH = Math.max(...last7.map(d => d.hours), 0.1);
-
-      const clientHours = clients.map(cl => {
-        const h = hrs(monthSess.filter(s => projects.find(p => p.id === s.projectId)?.clientId === cl.id));
-        return { ...cl, hours: h };
-      }).filter(c => c.hours > 0).sort((a, b) => b.hours - a.hours);
-
-      return (
-        <div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-            <StatCard label="Hoje" value={`${hrs(todaySess).toFixed(1)}h`} sub={`${todaySess.length} sessões`} color={C.green} icon="⏱" />
-            <StatCard label="Este mês" value={`${hrs(monthSess).toFixed(1)}h`} sub={`${monthSess.length} registros`} color={C.accent} icon="📅" />
-            <StatCard label="Clientes" value={clients.length} sub={`${projects.filter(p => p.status === "active").length} ativos`} color={C.orange} icon="👤" />
-            <StatCard label="Projetos" value={projects.length} sub={`${projects.filter(p => p.status === "completed").length} concluídos`} color={C.accentS} icon="◫" />
-          </div>
-
-          {/* Weekly chart */}
-          <Card style={{ marginBottom: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <h3 style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Últimos 7 dias</h3>
-              <span style={{ fontSize: 11, color: C.muted }}>{hrs(monthSess).toFixed(1)}h no mês</span>
-            </div>
-            <div style={{ display: "flex", gap: 6, alignItems: "flex-end", height: 72 }}>
-              {last7.map((d, i) => {
-                const hPct = (d.hours / maxH) * 100;
-                const isTd = d.date === today;
-                return (
-                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <div style={{ width: "100%", height: 56, display: "flex", alignItems: "flex-end" }}>
-                      <div style={{
-                        width: "100%",
-                        height: `${d.hours > 0 ? Math.max(hPct, 10) : 3}%`,
-                        background: isTd ? C.green : (d.hours > 0 ? C.accent : C.surfaceAlt),
-                        borderRadius: "4px 4px 2px 2px",
-                        boxShadow: isTd ? `0 0 10px ${C.green}66` : "none",
-                        minHeight: 3,
-                        transition: "height 0.4s ease",
-                      }} />
-                    </div>
-                    <span style={{ fontSize: 9, color: isTd ? C.green : C.muted, fontWeight: isTd ? 700 : 400 }}>{d.label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-
-          {/* Top clients */}
-          {clientHours.length > 0 && (
-            <Card style={{ marginBottom: 14 }}>
-              <h3 style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Syne', sans-serif", marginBottom: 12 }}>Top clientes este mês</h3>
-              {clientHours.slice(0, 3).map((cl, i) => (
-                <div key={cl.id} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: i < 2 ? 12 : 0 }}>
-                  <Avatar letter={cl.avatar} color={cl.color} size={30} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cl.name}</div>
-                    <div style={{ background: C.surfaceAlt, borderRadius: 3, height: 4, marginTop: 4 }}>
-                      <div style={{ height: "100%", borderRadius: 3, width: `${(cl.hours / clientHours[0].hours) * 100}%`, background: cl.color }} />
-                    </div>
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: C.accent, fontFamily: "'Space Mono', monospace", flexShrink: 0 }}>{cl.hours.toFixed(1)}h</span>
-                </div>
-              ))}
-            </Card>
-          )}
-
-          {/* Recent */}
-          <Card>
-            <h3 style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Syne', sans-serif", marginBottom: 12 }}>Histórico recente</h3>
-            {sessions.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "14px 0", color: C.faint, fontSize: 13 }}>
-                Nenhum registro ainda. Lance horas em um serviço.
-              </div>
-            ) : sessions.slice(0, 5).map((s, i) => {
-              const p = projects.find(x => x.id === s.projectId);
-              const cl = p ? clients.find(x => x.id === p.clientId) : null;
-              const last = i >= Math.min(sessions.length, 5) - 1;
-              return (
-                <div key={s.id} style={{
-                  display: "flex", alignItems: "center", gap: 10,
-                  paddingBottom: last ? 0 : 10, marginBottom: last ? 0 : 10,
-                  borderBottom: last ? "none" : `1px solid ${C.border}`,
-                }}>
-                  {cl && <Avatar letter={cl.avatar} color={cl.color} size={28} />}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p?.name}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{fmtDate(s.date)} · {s.note || "sem nota"}</div>
-                  </div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: C.green, flexShrink: 0 }}>{fmtTime(s.duration)}</div>
-                  <button
-                    onClick={() => { if (window.confirm("Remover este registro?")) deleteSession(s.id); }}
-                    style={{
-                      background: C.red + "18", border: `1px solid ${C.red}33`,
-                      color: C.red, borderRadius: 6, width: 28, height: 28, fontSize: 13,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      flexShrink: 0, marginLeft: 4,
-                    }}>✕</button>
-                </div>
-              );
-            })}
-          </Card>
-        </div>
-      );
-    }
-
-    /* ── RETRO MODAL ── */
-
-    function RetroModal({ projects, clients, onSave, onClose }) {
-      const today = new Date().toISOString().split("T")[0];
-      const [projectId, setProjectId] = useState("");
-      const [hours, setHours]         = useState("");
-      const [minutes, setMinutes]     = useState("");
-      const [date, setDate]           = useState(today);
-      const [note, setNote]           = useState("");
-      const [error, setError]         = useState("");
-
-      const save = () => {
-        if (!projectId) { setError("Selecione um projeto."); return; }
-        const secs = (parseFloat(hours) || 0) * 3600 + (parseFloat(minutes) || 0) * 60;
-        if (secs <= 0) { setError("Informe pelo menos 1 minuto."); return; }
-        onSave({ projectId: Number(projectId), date, duration: secs, note });
-        onClose();
-      };
-
-      const st = (extra = {}) => ({
-        background: C.surfaceAlt, border: `1px solid ${C.border}`,
-        color: C.text, borderRadius: 10, padding: "12px 14px",
-        fontSize: 16, outline: "none", width: "100%",
-        WebkitAppearance: "none", ...extra,
-      });
-
-      // group projects by client for the select
-      const grouped = clients.map(cl => ({
-        cl,
-        projs: projects.filter(p => p.clientId === cl.id && p.status === "active"),
-      })).filter(g => g.projs.length > 0);
-
-      return (
-        /* backdrop */
-        <div
-          onClick={onClose}
-          style={{
-            position: "fixed", inset: 0, zIndex: 100,
-            background: "rgba(0,0,0,0.7)",
-            display: "flex", alignItems: "flex-end",
-            paddingBottom: "env(safe-area-inset-bottom)",
-          }}
-        >
-          {/* sheet */}
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              width: "100%", background: C.surface,
-              borderRadius: "20px 20px 0 0",
-              padding: "20px 16px 24px",
-              border: `1px solid ${C.border}`,
-              borderBottom: "none",
-            }}
-          >
-            {/* handle */}
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: C.border, margin: "0 auto 18px" }} />
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-              <div>
-                <div style={{ fontSize: 17, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: C.text }}>
-                  Lançar Atividade
-                </div>
-                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Registro retroativo de horas</div>
-              </div>
-              <button onClick={onClose} style={{
-                background: C.surfaceAlt, border: `1px solid ${C.border}`,
-                color: C.muted, borderRadius: 8, width: 32, height: 32,
-                fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center",
-              }}>✕</button>
-            </div>
-
-            {/* Project select */}
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 6 }}>Projeto</div>
-              {grouped.length === 0 ? (
-                <div style={{ fontSize: 13, color: C.faint, padding: "10px 0" }}>Nenhum projeto ativo. Crie um primeiro.</div>
-              ) : (
-                <select value={projectId} onChange={e => { setProjectId(e.target.value); setError(""); }}
-                  style={{ ...st(), color: projectId ? C.text : C.muted }}>
-                  <option value="">Selecionar projeto</option>
-                  {grouped.map(({ cl, projs }) => (
-                    <optgroup key={cl.id} label={cl.name}>
-                      {projs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </optgroup>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            {/* Date */}
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 6 }}>Data</div>
-              <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                max={today}
-                style={{ ...st(), colorScheme: "dark" }} />
-            </div>
-
-            {/* Hours + minutes */}
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 6 }}>Duração</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <div style={{ flex: 1 }}>
-                  <input type="number" min="0" max="23" value={hours}
-                    onChange={e => { setHours(e.target.value); setError(""); }}
-                    placeholder="0h" style={st()} />
-                  <div style={{ fontSize: 10, color: C.muted, marginTop: 3, textAlign: "center" }}>horas</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <input type="number" min="0" max="59" value={minutes}
-                    onChange={e => { setMinutes(e.target.value); setError(""); }}
-                    placeholder="0min" style={st()} />
-                  <div style={{ fontSize: 10, color: C.muted, marginTop: 3, textAlign: "center" }}>minutos</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Note */}
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", marginBottom: 6 }}>Descrição</div>
-              <input value={note} onChange={e => setNote(e.target.value)}
-                placeholder="O que foi feito? (opcional)"
-                style={st()} />
-            </div>
-
-            {error && (
-              <div style={{ fontSize: 12, color: C.red, marginBottom: 10, padding: "8px 12px", background: C.red + "18", borderRadius: 8 }}>
-                {error}
-              </div>
-            )}
-
-            <button onClick={save} style={{
-              width: "100%", background: C.accent, color: "#fff", border: "none",
-              borderRadius: 12, padding: "15px", fontWeight: 700, fontSize: 16,
-              fontFamily: "'Syne', sans-serif", letterSpacing: "0.02em",
-              boxShadow: `0 4px 20px ${C.accent}44`,
-            }}>
-              Salvar Registro
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {mode==="signup"&&<input value={name} onChange={e=>setName(e.target.value)} placeholder="Seu nome" style={inputSt()} />}
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="E-mail" autoCapitalize="none" style={inputSt()} />
+            <input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="Senha (mín. 6 caracteres)" style={inputSt()} />
+            {err&&<div style={{fontSize:12,color:C.red,padding:"9px 12px",background:C.red+"18",borderRadius:8}}>{err}</div>}
+            {ok &&<div style={{fontSize:12,color:C.green,padding:"9px 12px",background:C.green+"18",borderRadius:8}}>{ok}</div>}
+            <button onClick={submit} disabled={busy} style={{background:C.accent,color:"#fff",border:"none",borderRadius:12,padding:"15px",fontWeight:700,fontSize:16,fontFamily:"'Syne',sans-serif",marginTop:4,boxShadow:`0 4px 20px ${C.accent}44`,display:"flex",alignItems:"center",justifyContent:"center",gap:10,opacity:busy?0.7:1}}>
+              {busy&&<Spinner color="#fff" />}
+              {mode==="login"?"Entrar":"Criar conta"}
             </button>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
-    /* ── ROOT ── */
+  /* ════════════════════════════════════════
+     CLIENTS MODULE
+  ════════════════════════════════════════ */
+  function ClientsModule({userId,clients,setClients,projects,sessions}) {
+    const [open,setOpen]   = useState(false);
+    const [form,setForm]   = useState({name:"",color:"#7C5CFC"});
+    const [busy,setBusy]   = useState(false);
+    const [toast,setToast] = useState(null);
+    const toast$ = (msg,type="error")=>{setToast({msg,type});setTimeout(()=>setToast(null),2500);};
 
-    const TABS = [
-      { id: "dashboard", label: "Dashboard", icon: "◈" },
-      { id: "projects",  label: "Serviços",  icon: "◫" },
-      { id: "clients",   label: "Clientes",  icon: "◉" },
-    ];
+    const add = async () => {
+      if (!form.name.trim()) return;
+      setBusy(true);
+      const {data,error} = await sb.from("clients").insert({user_id:userId,name:form.name,color:form.color,avatar:form.name[0].toUpperCase()}).select().single();
+      setBusy(false);
+      if (error){toast$("Erro ao salvar.");return;}
+      setClients(c=>[...c,data]);
+      setForm({name:"",color:"#7C5CFC"});
+      setOpen(false);
+      toast$("Cliente adicionado!","ok");
+    };
 
-    function load(key, fallback) {
-      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-      catch { return fallback; }
-    }
+    const stats = (id) => {
+      const ps=projects.filter(p=>p.client_id===id);
+      const hrs=ps.reduce((s,p)=>s+sessions.filter(x=>x.project_id===p.id).reduce((a,x)=>a+x.duration,0)/3600,0);
+      return {projects:ps.length,hours:hrs.toFixed(1)};
+    };
 
-    function save(key, value) {
-      try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
-    }
+    return (
+      <div>
+        {toast&&<Toast msg={toast.msg} type={toast.type}/>}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <h2 style={{fontSize:18,fontWeight:700,fontFamily:"'Syne',sans-serif"}}>Clientes</h2>
+          <button onClick={()=>setOpen(o=>!o)} style={{background:C.accentG,color:C.accent,border:`1px solid ${C.accent}44`,borderRadius:10,padding:"8px 16px",fontWeight:600,fontSize:14}}>+ Novo</button>
+        </div>
 
-    function App() {
-      const [tab, setTab]           = useState("dashboard");
-      const [clients, setClients]   = useState(() => load("fos_clients", []));
-      const [projects, setProjects] = useState(() => load("fos_projects", []));
-      const [sessions, setSessions] = useState(() => load("fos_sessions", []));
-      const [showRetro, setShowRetro] = useState(false);
+        {open&&(
+          <Card style={{marginBottom:14}}>
+            <div style={{display:"flex",gap:10,alignItems:"center"}}>
+              <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="Nome do cliente" style={{...inputSt(),flex:1}} />
+              <input type="color" value={form.color} onChange={e=>setForm(f=>({...f,color:e.target.value}))} style={{width:44,height:44,border:"none",background:"none",cursor:"pointer",borderRadius:8,padding:0}} />
+              <button onClick={add} disabled={busy} style={{background:C.green,color:"#000",border:"none",borderRadius:10,padding:"12px 18px",fontWeight:700,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",minWidth:48}}>
+                {busy?<Spinner color="#000"/>:"✓"}
+              </button>
+            </div>
+          </Card>
+        )}
 
-      // Persist whenever state changes
-      React.useEffect(() => { save("fos_clients",  clients);  }, [clients]);
-      React.useEffect(() => { save("fos_projects", projects); }, [projects]);
-      React.useEffect(() => { save("fos_sessions", sessions); }, [sessions]);
+        {clients.length===0&&<div style={{textAlign:"center",padding:"40px 0",color:C.faint,fontSize:14}}>Nenhum cliente ainda.</div>}
 
-      const addSession = ({ projectId, date, duration, note }) => {
-        setSessions(s => [{ id: Date.now(), projectId, date, duration, note }, ...s]
-          .sort((a, b) => b.date.localeCompare(a.date)));
-      };
-
-      const deleteSession = (id) => {
-        setSessions(s => s.filter(x => x.id !== id));
-      };
-
-      return (
-        <div style={{
-          display: "flex", flexDirection: "column",
-          height: "100%",
-          background: C.bg,
-          paddingTop:   "env(safe-area-inset-top)",
-          paddingLeft:  "env(safe-area-inset-left)",
-          paddingRight: "env(safe-area-inset-right)",
-        }}>
-
-          {/* ── HEADER ── */}
-          <div style={{
-            flexShrink: 0, background: C.bg,
-            borderBottom: `1px solid ${C.border}`,
-            padding: "14px 16px 0", zIndex: 10,
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div>
-                <div style={{ fontFamily: "'Syne', sans-serif", fontSize: 20, fontWeight: 800, letterSpacing: "-0.5px", color: C.text }}>
-                  Freelance<span style={{ color: C.accent }}>OS</span>
-                </div>
-                <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
-                  {new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}
+        {clients.map(cl=>{
+          const s=stats(cl.id);
+          return (
+            <Card key={cl.id} style={{marginBottom:10}}>
+              <div style={{display:"flex",alignItems:"center",gap:14}}>
+                <Avatar letter={cl.avatar} color={cl.color} size={44}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:16,fontWeight:700,fontFamily:"'Syne',sans-serif",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{cl.name}</div>
+                  <div style={{fontSize:12,color:C.muted,marginTop:3}}>{s.projects} serviços · {s.hours}h registradas</div>
                 </div>
               </div>
-              {/* ── RETRO BUTTON ── */}
-              <button onClick={() => setShowRetro(true)} style={{
-                background: C.accent, color: "#fff", border: "none",
-                borderRadius: 10, padding: "8px 14px", fontWeight: 700, fontSize: 13,
-                fontFamily: "'Syne', sans-serif",
-                boxShadow: `0 2px 12px ${C.accent}44`,
-              }}>+ Lançar</button>
-            </div>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  }
 
-            {/* tabs */}
-            <div style={{ display: "flex" }}>
-              {TABS.map(t => (
-                <button key={t.id} onClick={() => setTab(t.id)} style={{
-                  flex: 1, padding: "10px 4px", background: "none", border: "none",
-                  borderBottom: `2px solid ${tab === t.id ? C.accent : "transparent"}`,
-                  color: tab === t.id ? C.accent : C.muted,
-                  fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 11,
-                  transition: "color 0.15s",
-                }}>
-                  <div style={{ fontSize: 15, marginBottom: 2 }}>{t.icon}</div>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
+  /* ════════════════════════════════════════
+     LOG HOURS FORM
+  ════════════════════════════════════════ */
+  function LogHoursForm({projectId,onSave,onCancel}) {
+    const today=new Date().toISOString().split("T")[0];
+    const [hours,setHours]     = useState("");
+    const [minutes,setMinutes] = useState("");
+    const [date,setDate]       = useState(today);
+    const [note,setNote]       = useState("");
+    const [busy,setBusy]       = useState(false);
 
-          {/* ── CONTENT ── */}
-          <div className="scroll-area" style={{
-            flex: 1, padding: "16px 16px",
-            paddingBottom: `calc(24px + env(safe-area-inset-bottom))`,
-          }}>
-            {tab === "dashboard" && <DashboardModule projects={projects} clients={clients} sessions={sessions} deleteSession={deleteSession} />}
-            {tab === "projects"  && <ProjectsModule  projects={projects} setProjects={setProjects} clients={clients} sessions={sessions} setSessions={addSession} deleteSession={deleteSession} />}
-            {tab === "clients"   && <ClientsModule   clients={clients} setClients={setClients} projects={projects} sessions={sessions} />}
-          </div>
+    const save = async () => {
+      const secs=(parseFloat(hours)||0)*3600+(parseFloat(minutes)||0)*60;
+      if (secs<=0) return;
+      setBusy(true);
+      await onSave({projectId,date,duration:secs,note});
+      setBusy(false);
+    };
 
-          {/* ── RETRO MODAL ── */}
-          {showRetro && (
-            <RetroModal
-              projects={projects}
-              clients={clients}
-              onSave={addSession}
-              onClose={() => setShowRetro(false)}
-            />
-          )}
+    const st={...inputSt(),borderRadius:8,background:C.bg};
+    return (
+      <div style={{marginTop:14,paddingTop:14,borderTop:`1px solid ${C.border}`}}>
+        <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:10}}>Lançar horas</div>
+        <div style={{display:"flex",gap:8,marginBottom:8}}>
+          <div style={{flex:1}}><div style={{fontSize:11,color:C.muted,marginBottom:4}}>Horas</div><input type="number" min="0" value={hours} onChange={e=>setHours(e.target.value)} placeholder="0" style={st}/></div>
+          <div style={{flex:1}}><div style={{fontSize:11,color:C.muted,marginBottom:4}}>Min</div><input type="number" min="0" max="59" value={minutes} onChange={e=>setMinutes(e.target.value)} placeholder="0" style={st}/></div>
+          <div style={{flex:2}}><div style={{fontSize:11,color:C.muted,marginBottom:4}}>Data</div><input type="date" value={date} onChange={e=>setDate(e.target.value)} style={{...st,colorScheme:"dark"}}/></div>
         </div>
-      );
-    }
+        <input value={note} onChange={e=>setNote(e.target.value)} placeholder="Descrição (opcional)" style={{...st,marginBottom:10}}/>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={save} disabled={busy} style={{flex:1,background:C.green,color:"#000",border:"none",borderRadius:10,padding:"13px",fontWeight:700,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+            {busy&&<Spinner color="#000"/>} Salvar
+          </button>
+          <button onClick={onCancel} style={{flex:1,background:C.surfaceAlt,color:C.muted,border:`1px solid ${C.border}`,borderRadius:10,padding:"13px",fontWeight:600,fontSize:15}}>Cancelar</button>
+        </div>
+      </div>
+    );
+  }
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
-  </script>
+  /* ════════════════════════════════════════
+     PROJECTS MODULE
+  ════════════════════════════════════════ */
+  function ProjectsModule({userId,projects,setProjects,clients,sessions,onAddSession,onDeleteSession}) {
+    const [openNew,setOpenNew]     = useState(false);
+    const [loggingId,setLoggingId] = useState(null);
+    const [expandedId,setExpandedId] = useState(null);
+    const [form,setForm]           = useState({clientId:"",name:"",budget:""});
+    const [busy,setBusy]           = useState(false);
+    const [toast,setToast]         = useState(null);
+    const toast$ = (msg,type="error")=>{setToast({msg,type});setTimeout(()=>setToast(null),2500);};
+
+    const add = async () => {
+      if (!form.name||!form.clientId) return;
+      setBusy(true);
+      const {data,error} = await sb.from("projects").insert({user_id:userId,client_id:form.clientId,name:form.name,budget:Number(form.budget)||0,status:"active"}).select().single();
+      setBusy(false);
+      if (error){toast$("Erro ao salvar serviço.");return;}
+      setProjects(p=>[...p,data]);
+      setForm({clientId:"",name:"",budget:""});
+      setOpenNew(false);
+      toast$("Serviço adicionado!","ok");
+    };
+
+    const stats = (id) => {
+      const s=sessions.filter(x=>x.project_id===id);
+      return {hours:(s.reduce((a,x)=>a+x.duration,0)/3600).toFixed(1),count:s.length};
+    };
+
+    return (
+      <div>
+        {toast&&<Toast msg={toast.msg} type={toast.type}/>}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <h2 style={{fontSize:18,fontWeight:700,fontFamily:"'Syne',sans-serif"}}>Serviços</h2>
+          <button onClick={()=>setOpenNew(o=>!o)} style={{background:C.accentG,color:C.accent,border:`1px solid ${C.accent}44`,borderRadius:10,padding:"8px 16px",fontWeight:600,fontSize:14}}>+ Novo</button>
+        </div>
+
+        {openNew&&(
+          <Card style={{marginBottom:14}}>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              <select value={form.clientId} onChange={e=>setForm(f=>({...f,clientId:e.target.value}))} style={{...inputSt(),color:form.clientId?C.text:C.muted}}>
+                <option value="">Selecionar cliente</option>
+                {clients.map(cl=><option key={cl.id} value={cl.id}>{cl.name}</option>)}
+              </select>
+              <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="Nome do serviço" style={inputSt()}/>
+              <input type="number" value={form.budget} onChange={e=>setForm(f=>({...f,budget:e.target.value}))} placeholder="Budget total (R$)" style={inputSt()}/>
+              <button onClick={add} disabled={busy} style={{background:C.green,color:"#000",border:"none",borderRadius:10,padding:"13px",fontWeight:700,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                {busy&&<Spinner color="#000"/>} Adicionar Serviço
+              </button>
+            </div>
+          </Card>
+        )}
+
+        {projects.length===0&&<div style={{textAlign:"center",padding:"40px 0",color:C.faint,fontSize:14}}>Nenhum serviço ainda.</div>}
+
+        {projects.map(proj=>{
+          const cl=clients.find(c=>c.id===proj.client_id);
+          const s=stats(proj.id);
+          const pct=proj.budget>0?Math.min((parseFloat(s.hours)/(proj.budget/100))*100,100):0;
+          const logging=loggingId===proj.id;
+          const expanded=expandedId===proj.id;
+          const projSessions=sessions.filter(x=>x.project_id===proj.id).sort((a,b)=>b.date.localeCompare(a.date));
+
+          return (
+            <Card key={proj.id} style={{marginBottom:12}}>
+              <div style={{display:"flex",alignItems:"flex-start",gap:12,marginBottom:12}}>
+                {cl&&<Avatar letter={cl.avatar} color={cl.color} size={38}/>}
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:15,fontWeight:700,fontFamily:"'Syne',sans-serif",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{proj.name}</div>
+                  <div style={{fontSize:12,color:C.muted}}>{cl?.name}</div>
+                </div>
+                <Badge color={proj.status==="active"?C.green:C.muted}>{proj.status==="active"?"Ativo":"Concluído"}</Badge>
+              </div>
+
+              <div style={{display:"flex",gap:12,alignItems:"flex-end",marginBottom:proj.budget>0?12:0}}>
+                <div style={{flex:1}}><div style={{fontSize:11,color:C.muted,marginBottom:2}}>Horas</div><div style={{fontSize:15,fontWeight:700,fontFamily:"'Space Mono',monospace"}}>{s.hours}h</div></div>
+                <div style={{flex:1}}><div style={{fontSize:11,color:C.muted,marginBottom:2}}>Sessões</div><div style={{fontSize:15,fontWeight:700}}>{s.count}</div></div>
+                {proj.status==="active"&&!logging&&(
+                  <button onClick={()=>{setLoggingId(proj.id);setExpandedId(null);}} style={{background:C.accentG,color:C.accent,border:`1px solid ${C.accent}44`,borderRadius:8,padding:"8px 14px",fontWeight:600,fontSize:13,whiteSpace:"nowrap"}}>+ Horas</button>
+                )}
+              </div>
+
+              {proj.budget>0&&(
+                <div>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                    <span style={{fontSize:11,color:C.muted}}>Budget</span>
+                    <span style={{fontSize:11,color:C.muted}}>{fmtCurrency(proj.budget)}</span>
+                  </div>
+                  <div style={{background:C.surfaceAlt,borderRadius:4,height:6,overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${pct}%`,background:pct>80?C.red:C.green,borderRadius:4,transition:"width 0.5s ease"}}/>
+                  </div>
+                </div>
+              )}
+
+              {projSessions.length>0&&!logging&&(
+                <div style={{marginTop:12}}>
+                  <button onClick={()=>setExpandedId(expanded?null:proj.id)} style={{background:"none",border:"none",color:C.muted,fontSize:11,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",cursor:"pointer",padding:0,display:"flex",alignItems:"center",gap:4}}>
+                    {expanded?"▾":"▸"} Registros ({projSessions.length})
+                  </button>
+                  {expanded&&(
+                    <div style={{marginTop:10,borderTop:`1px solid ${C.border}`,paddingTop:10}}>
+                      {projSessions.map((sess,i)=>{
+                        const last=i===projSessions.length-1;
+                        return (
+                          <div key={sess.id} style={{display:"flex",alignItems:"center",gap:8,paddingBottom:last?0:8,marginBottom:last?0:8,borderBottom:last?"none":`1px solid ${C.border}`}}>
+                            <div style={{flex:1,minWidth:0}}>
+                              <div style={{fontSize:12,color:C.text,fontWeight:500}}>{sess.note||"Sem descrição"}</div>
+                              <div style={{fontSize:11,color:C.muted,marginTop:1}}>{fmtDate(sess.date)} · {fmtTime(sess.duration)}</div>
+                            </div>
+                            <button onClick={()=>onDeleteSession(sess.id)} style={{background:C.red+"18",border:`1px solid ${C.red}33`,color:C.red,borderRadius:6,width:28,height:28,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>✕</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {logging&&(
+                <LogHoursForm projectId={proj.id}
+                  onSave={async(d)=>{await onAddSession(d);setLoggingId(null);}}
+                  onCancel={()=>setLoggingId(null)}/>
+              )}
+            </Card>
+          );
+        })}
+      </div>
+    );
+  }
+
+  /* ════════════════════════════════════════
+     RETRO MODAL
+  ════════════════════════════════════════ */
+  function RetroModal({projects,clients,onSave,onClose}) {
+    const today=new Date().toISOString().split("T")[0];
+    const [projectId,setProjectId] = useState("");
+    const [hours,setHours]         = useState("");
+    const [minutes,setMinutes]     = useState("");
+    const [date,setDate]           = useState(today);
+    const [note,setNote]           = useState("");
+    const [err,setErr]             = useState("");
+    const [busy,setBusy]           = useState(false);
+
+    const save = async () => {
+      if (!projectId){setErr("Selecione um serviço.");return;}
+      const secs=(parseFloat(hours)||0)*3600+(parseFloat(minutes)||0)*60;
+      if (secs<=0){setErr("Informe pelo menos 1 minuto.");return;}
+      setBusy(true);
+      await onSave({projectId,date,duration:secs,note});
+      setBusy(false);
+      onClose();
+    };
+
+    const st=(e={})=>({...inputSt(),...e});
+    const grouped=clients.map(cl=>({cl,projs:projects.filter(p=>p.client_id===cl.id&&p.status==="active")})).filter(g=>g.projs.length>0);
+
+    return (
+      <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:100,background:"rgba(0,0,0,0.75)",display:"flex",alignItems:"flex-end",paddingBottom:"env(safe-area-inset-bottom)"}}>
+        <div onClick={e=>e.stopPropagation()} style={{width:"100%",background:C.surface,borderRadius:"20px 20px 0 0",padding:"20px 16px 28px",border:`1px solid ${C.border}`,borderBottom:"none"}}>
+          <div style={{width:40,height:4,borderRadius:2,background:C.border,margin:"0 auto 18px"}}/>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+            <div>
+              <div style={{fontSize:17,fontWeight:700,fontFamily:"'Syne',sans-serif",color:C.text}}>Lançar Atividade</div>
+              <div style={{fontSize:11,color:C.muted,marginTop:2}}>Registro retroativo de horas</div>
+            </div>
+            <button onClick={onClose} style={{background:C.surfaceAlt,border:`1px solid ${C.border}`,color:C.muted,borderRadius:8,width:32,height:32,fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+          </div>
+
+          <div style={{marginBottom:10}}>
+            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:6}}>Serviço</div>
+            {grouped.length===0
+              ?<div style={{fontSize:13,color:C.faint,padding:"10px 0"}}>Nenhum serviço ativo.</div>
+              :<select value={projectId} onChange={e=>{setProjectId(e.target.value);setErr("");}} style={{...st(),color:projectId?C.text:C.muted}}>
+                <option value="">Selecionar serviço</option>
+                {grouped.map(({cl,projs})=>(
+                  <optgroup key={cl.id} label={cl.name}>
+                    {projs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+            }
+          </div>
+
+          <div style={{marginBottom:10}}>
+            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:6}}>Data</div>
+            <input type="date" value={date} onChange={e=>setDate(e.target.value)} max={today} style={{...st(),colorScheme:"dark"}}/>
+          </div>
+
+          <div style={{marginBottom:10}}>
+            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:6}}>Duração</div>
+            <div style={{display:"flex",gap:8}}>
+              <div style={{flex:1}}>
+                <input type="number" min="0" max="23" value={hours} onChange={e=>{setHours(e.target.value);setErr("");}} placeholder="0h" style={st()}/>
+                <div style={{fontSize:10,color:C.muted,marginTop:3,textAlign:"center"}}>horas</div>
+              </div>
+              <div style={{flex:1}}>
+                <input type="number" min="0" max="59" value={minutes} onChange={e=>{setMinutes(e.target.value);setErr("");}} placeholder="0min" style={st()}/>
+                <div style={{fontSize:10,color:C.muted,marginTop:3,textAlign:"center"}}>minutos</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{marginBottom:16}}>
+            <div style={{fontSize:11,color:C.muted,fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:6}}>Descrição</div>
+            <input value={note} onChange={e=>setNote(e.target.value)} placeholder="O que foi feito? (opcional)" style={st()}/>
+          </div>
+
+          {err&&<div style={{fontSize:12,color:C.red,marginBottom:10,padding:"9px 12px",background:C.red+"18",borderRadius:8}}>{err}</div>}
+
+          <button onClick={save} disabled={busy} style={{width:"100%",background:C.accent,color:"#fff",border:"none",borderRadius:12,padding:"15px",fontWeight:700,fontSize:16,fontFamily:"'Syne',sans-serif",boxShadow:`0 4px 20px ${C.accent}44`,display:"flex",alignItems:"center",justifyContent:"center",gap:10,opacity:busy?0.7:1}}>
+            {busy&&<Spinner color="#fff"/>} Salvar Registro
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  /* ════════════════════════════════════════
+     DASHBOARD
+  ════════════════════════════════════════ */
+  function DashboardModule({projects,clients,sessions,onDeleteSession}) {
+    const today=new Date().toISOString().split("T")[0];
+    const month=today.slice(0,7);
+    const todaySess=sessions.filter(s=>s.date===today);
+    const monthSess=sessions.filter(s=>s.date.startsWith(month));
+    const hrs=(arr)=>arr.reduce((a,s)=>a+s.duration,0)/3600;
+
+    const last7=Array.from({length:7},(_,i)=>{
+      const d=new Date(); d.setDate(d.getDate()-(6-i));
+      const key=d.toISOString().split("T")[0];
+      return {date:key,hours:hrs(sessions.filter(s=>s.date===key)),label:d.toLocaleDateString("pt-BR",{weekday:"short"}).slice(0,3)};
+    });
+    const maxH=Math.max(...last7.map(d=>d.hours),0.1);
+
+    const clientHours=clients.map(cl=>{
+      const h=hrs(monthSess.filter(s=>projects.find(p=>p.id===s.project_id)?.client_id===cl.id));
+      return {...cl,hours:h};
+    }).filter(c=>c.hours>0).sort((a,b)=>b.hours-a.hours);
+
+    return (
+      <div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:14}}>
+          <StatCard label="Hoje" value={`${hrs(todaySess).toFixed(1)}h`} sub={`${todaySess.length} sessões`} color={C.green} icon="⏱"/>
+          <StatCard label="Este mês" value={`${hrs(monthSess).toFixed(1)}h`} sub={`${monthSess.length} registros`} color={C.accent} icon="📅"/>
+          <StatCard label="Clientes" value={clients.length} sub={`${projects.filter(p=>p.status==="active").length} ativos`} color={C.orange} icon="👤"/>
+          <StatCard label="Serviços" value={projects.length} sub={`${projects.filter(p=>p.status==="completed").length} concluídos`} color={C.accentS} icon="◫"/>
+        </div>
+
+        <Card style={{marginBottom:14}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <h3 style={{fontSize:13,fontWeight:700,fontFamily:"'Syne',sans-serif"}}>Últimos 7 dias</h3>
+            <span style={{fontSize:11,color:C.muted}}>{hrs(monthSess).toFixed(1)}h no mês</span>
+          </div>
+          <div style={{display:"flex",gap:6,alignItems:"flex-end",height:72}}>
+            {last7.map((d,i)=>{
+              const hPct=(d.hours/maxH)*100,isTd=d.date===today;
+              return (
+                <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                  <div style={{width:"100%",height:56,display:"flex",alignItems:"flex-end"}}>
+                    <div style={{width:"100%",height:`${d.hours>0?Math.max(hPct,10):3}%`,background:isTd?C.green:(d.hours>0?C.accent:C.surfaceAlt),borderRadius:"4px 4px 2px 2px",boxShadow:isTd?`0 0 10px ${C.green}66`:"none",minHeight:3,transition:"height 0.4s ease"}}/>
+                  </div>
+                  <span style={{fontSize:9,color:isTd?C.green:C.muted,fontWeight:isTd?700:400}}>{d.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+
+        {clientHours.length>0&&(
+          <Card style={{marginBottom:14}}>
+            <h3 style={{fontSize:13,fontWeight:700,fontFamily:"'Syne',sans-serif",marginBottom:12}}>Top clientes este mês</h3>
+            {clientHours.slice(0,3).map((cl,i)=>(
+              <div key={cl.id} style={{display:"flex",alignItems:"center",gap:12,marginBottom:i<2?12:0}}>
+                <Avatar letter={cl.avatar} color={cl.color} size={30}/>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:13,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{cl.name}</div>
+                  <div style={{background:C.surfaceAlt,borderRadius:3,height:4,marginTop:4}}>
+                    <div style={{height:"100%",borderRadius:3,width:`${(cl.hours/clientHours[0].hours)*100}%`,background:cl.color}}/>
+                  </div>
+                </div>
+                <span style={{fontSize:13,fontWeight:700,color:C.accent,fontFamily:"'Space Mono',monospace",flexShrink:0}}>{cl.hours.toFixed(1)}h</span>
+              </div>
+            ))}
+          </Card>
+        )}
+
+        <Card>
+          <h3 style={{fontSize:13,fontWeight:700,fontFamily:"'Syne',sans-serif",marginBottom:12}}>Histórico recente</h3>
+          {sessions.length===0
+            ?<div style={{textAlign:"center",padding:"14px 0",color:C.faint,fontSize:13}}>Nenhum registro ainda. Clique em "+ Lançar".</div>
+            :sessions.slice(0,8).map((s,i)=>{
+              const p=projects.find(x=>x.id===s.project_id);
+              const cl=p?clients.find(x=>x.id===p.client_id):null;
+              const last=i>=Math.min(sessions.length,8)-1;
+              return (
+                <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,paddingBottom:last?0:10,marginBottom:last?0:10,borderBottom:last?"none":`1px solid ${C.border}`}}>
+                  {cl&&<Avatar letter={cl.avatar} color={cl.color} size={28}/>}
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p?.name}</div>
+                    <div style={{fontSize:11,color:C.muted}}>{fmtDate(s.date)} · {s.note||"sem nota"}</div>
+                  </div>
+                  <div style={{fontFamily:"'Space Mono',monospace",fontSize:12,color:C.green,flexShrink:0}}>{fmtTime(s.duration)}</div>
+                  <button onClick={()=>onDeleteSession(s.id)} style={{background:C.red+"18",border:`1px solid ${C.red}33`,color:C.red,borderRadius:6,width:28,height:28,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginLeft:4}}>✕</button>
+                </div>
+              );
+            })
+          }
+        </Card>
+      </div>
+    );
+  }
+
+  /* ════════════════════════════════════════
+     ROOT APP
+  ════════════════════════════════════════ */
+  const TABS=[
+    {id:"dashboard",label:"Dashboard",icon:"◈"},
+    {id:"projects", label:"Serviços", icon:"◫"},
+    {id:"clients",  label:"Clientes", icon:"◉"},
+  ];
+
+  function App() {
+    const [user,setUser]           = useState(null);
+    const [booting,setBooting]     = useState(true);
+    const [tab,setTab]             = useState("dashboard");
+    const [clients,setClients]     = useState([]);
+    const [projects,setProjects]   = useState([]);
+    const [sessions,setSessions]   = useState([]);
+    const [showRetro,setShowRetro] = useState(false);
+    const [dataLoading,setDataLoading] = useState(false);
+    const [toast,setToast]         = useState(null);
+    const toast$ = (msg,type="error")=>{setToast({msg,type});setTimeout(()=>setToast(null),2500);};
+
+    /* ── Restore session on mount ── */
+    useEffect(()=>{
+      sb.auth.getSession().then(({data})=>{
+        if (data.session?.user) setUser(data.session.user);
+        setBooting(false);
+      });
+      const {data:L}=sb.auth.onAuthStateChange((_,session)=>{
+        setUser(session?.user||null);
+      });
+      return ()=>L.subscription.unsubscribe();
+    },[]);
+
+    /* ── Load data when user changes ── */
+    useEffect(()=>{
+      if (!user){setClients([]);setProjects([]);setSessions([]);return;}
+      (async()=>{
+        setDataLoading(true);
+        const [cl,pr,se]=await Promise.all([
+          sb.from("clients").select("*").eq("user_id",user.id).order("created_at"),
+          sb.from("projects").select("*").eq("user_id",user.id).order("created_at"),
+          sb.from("sessions").select("*").eq("user_id",user.id).order("date",{ascending:false}),
+        ]);
+        setClients(cl.data||[]);
+        setProjects(pr.data||[]);
+        setSessions(se.data||[]);
+        setDataLoading(false);
+      })();
+    },[user]);
+
+    const addSession = async ({projectId,date,duration,note})=>{
+      const {data,error}=await sb.from("sessions").insert({user_id:user.id,project_id:projectId,date,duration,note}).select().single();
+      if (error){toast$("Erro ao salvar registro.");return;}
+      setSessions(s=>[data,...s].sort((a,b)=>b.date.localeCompare(a.date)));
+      toast$("Registro salvo!","ok");
+    };
+
+    const deleteSession = async (id)=>{
+      if (!window.confirm("Remover este registro?")) return;
+      const {error}=await sb.from("sessions").delete().eq("id",id);
+      if (error){toast$("Erro ao remover.");return;}
+      setSessions(s=>s.filter(x=>x.id!==id));
+      toast$("Registro removido.","ok");
+    };
+
+    /* Booting splash */
+    if (booting) return (
+      <div style={{height:"100%",display:"flex",alignItems:"center",justifyContent:"center",background:C.bg,flexDirection:"column",gap:16}}>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:26,fontWeight:800,color:C.text}}>Freelance<span style={{color:C.accent}}>OS</span></div>
+        <Spinner size={22}/>
+      </div>
+    );
+
+    if (!user) return <AuthScreen onAuth={setUser}/>;
+
+    return (
+      <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg,paddingTop:"env(safe-area-inset-top)",paddingLeft:"env(safe-area-inset-left)",paddingRight:"env(safe-area-inset-right)"}}>
+        {toast&&<Toast msg={toast.msg} type={toast.type}/>}
+
+        {/* HEADER */}
+        <div style={{flexShrink:0,background:C.bg,borderBottom:`1px solid ${C.border}`,padding:"14px 16px 0",zIndex:10}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+            <div>
+              <div style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:800,letterSpacing:"-0.5px",color:C.text}}>
+                Freelance<span style={{color:C.accent}}>OS</span>
+              </div>
+              <div style={{fontSize:11,color:C.muted,marginTop:1}}>
+                {new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}
+              </div>
+            </div>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              <button onClick={()=>setShowRetro(true)} style={{background:C.accent,color:"#fff",border:"none",borderRadius:10,padding:"8px 14px",fontWeight:700,fontSize:13,fontFamily:"'Syne',sans-serif",boxShadow:`0 2px 12px ${C.accent}44`}}>+ Lançar</button>
+              <button onClick={()=>sb.auth.signOut()} title="Sair" style={{background:C.surfaceAlt,color:C.muted,border:`1px solid ${C.border}`,borderRadius:10,width:36,height:36,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center"}}>⏻</button>
+            </div>
+          </div>
+          <div style={{display:"flex"}}>
+            {TABS.map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,padding:"10px 4px",background:"none",border:"none",borderBottom:`2px solid ${tab===t.id?C.accent:"transparent"}`,color:tab===t.id?C.accent:C.muted,fontFamily:"'DM Sans',sans-serif",fontWeight:600,fontSize:11,transition:"color 0.15s"}}>
+                <div style={{fontSize:15,marginBottom:2}}>{t.icon}</div>{t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* CONTENT */}
+        <div className="scroll-area" style={{flex:1,padding:"16px 16px",paddingBottom:`calc(24px + env(safe-area-inset-bottom))`}}>
+          {dataLoading
+            ?<div style={{display:"flex",justifyContent:"center",paddingTop:60}}><Spinner size={28}/></div>
+            :<>
+              {tab==="dashboard"&&<DashboardModule projects={projects} clients={clients} sessions={sessions} onDeleteSession={deleteSession}/>}
+              {tab==="projects" &&<ProjectsModule userId={user.id} projects={projects} setProjects={setProjects} clients={clients} sessions={sessions} onAddSession={addSession} onDeleteSession={deleteSession}/>}
+              {tab==="clients"  &&<ClientsModule userId={user.id} clients={clients} setClients={setClients} projects={projects} sessions={sessions}/>}
+            </>
+          }
+        </div>
+
+        {/* RETRO MODAL */}
+        {showRetro&&<RetroModal projects={projects} clients={clients} onSave={addSession} onClose={()=>setShowRetro(false)}/>}
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
