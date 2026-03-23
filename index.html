@@ -748,12 +748,26 @@
       { id: "clients",   label: "Clientes",  icon: "◉" },
     ];
 
+    function load(key, fallback) {
+      try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+      catch { return fallback; }
+    }
+
+    function save(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+    }
+
     function App() {
       const [tab, setTab]           = useState("dashboard");
-      const [clients, setClients]   = useState([]);
-      const [projects, setProjects] = useState([]);
-      const [sessions, setSessions] = useState([]);
+      const [clients, setClients]   = useState(() => load("fos_clients", []));
+      const [projects, setProjects] = useState(() => load("fos_projects", []));
+      const [sessions, setSessions] = useState(() => load("fos_sessions", []));
       const [showRetro, setShowRetro] = useState(false);
+
+      // Persist whenever state changes
+      React.useEffect(() => { save("fos_clients",  clients);  }, [clients]);
+      React.useEffect(() => { save("fos_projects", projects); }, [projects]);
+      React.useEffect(() => { save("fos_sessions", sessions); }, [sessions]);
 
       const addSession = ({ projectId, date, duration, note }) => {
         setSessions(s => [{ id: Date.now(), projectId, date, duration, note }, ...s]
