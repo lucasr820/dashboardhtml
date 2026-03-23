@@ -298,9 +298,10 @@
 
     /* ── PROJECTS ── */
 
-    function ProjectsModule({ projects, setProjects, clients, sessions, setSessions }) {
+    function ProjectsModule({ projects, setProjects, clients, sessions, setSessions, deleteSession }) {
       const [openNew, setOpenNew] = useState(false);
       const [loggingId, setLoggingId] = useState(null);
+      const [expandedId, setExpandedId] = useState(null);
       const [form, setForm] = useState({ clientId: "", name: "", budget: "" });
 
       const add = () => {
@@ -326,7 +327,7 @@
       return (
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Projetos</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>Serviços</h2>
             <button onClick={() => setOpenNew(o => !o)} style={{
               background: C.accentG, color: C.accent, border: `1px solid ${C.accent}44`,
               borderRadius: 10, padding: "8px 16px", fontWeight: 600, fontSize: 14,
@@ -342,20 +343,20 @@
                   {clients.map(cl => <option key={cl.id} value={cl.id}>{cl.name}</option>)}
                 </select>
                 <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="Nome do projeto" style={inputSt()} />
+                  placeholder="Nome do serviço" style={inputSt()} />
                 <input type="number" value={form.budget} onChange={e => setForm(f => ({ ...f, budget: e.target.value }))}
                   placeholder="Budget total (R$)" style={inputSt()} />
                 <button onClick={add} style={{
                   background: C.green, color: "#000", border: "none",
                   borderRadius: 10, padding: "13px", fontWeight: 700, fontSize: 15,
-                }}>Adicionar Projeto</button>
+                }}>Adicionar Serviço</button>
               </div>
             </Card>
           )}
 
           {projects.length === 0 && (
             <div style={{ textAlign: "center", padding: "40px 0", color: C.faint, fontSize: 14 }}>
-              Nenhum projeto ainda.
+              Nenhum serviço ainda.
             </div>
           )}
 
@@ -364,6 +365,8 @@
             const s = stats(proj.id);
             const pct = proj.budget > 0 ? Math.min((parseFloat(s.hours) / (proj.budget / 100)) * 100, 100) : 0;
             const logging = loggingId === proj.id;
+            const expanded = expandedId === proj.id;
+            const projSessions = sessions.filter(x => x.projectId === proj.id);
 
             return (
               <Card key={proj.id} style={{ marginBottom: 12 }}>
@@ -388,7 +391,7 @@
                     <div style={{ fontSize: 15, fontWeight: 700 }}>{s.count}</div>
                   </div>
                   {proj.status === "active" && !logging && (
-                    <button onClick={() => setLoggingId(proj.id)} style={{
+                    <button onClick={() => { setLoggingId(proj.id); setExpandedId(null); }} style={{
                       background: C.accentG, color: C.accent, border: `1px solid ${C.accent}44`,
                       borderRadius: 8, padding: "8px 14px", fontWeight: 600, fontSize: 13,
                       whiteSpace: "nowrap",
@@ -397,7 +400,7 @@
                 </div>
 
                 {proj.budget > 0 && (
-                  <div>
+                  <div style={{ marginBottom: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                       <span style={{ fontSize: 11, color: C.muted }}>Budget</span>
                       <span style={{ fontSize: 11, color: C.muted }}>{fmtCurrency(proj.budget)}</span>
@@ -409,6 +412,55 @@
                         borderRadius: 4, transition: "width 0.5s ease",
                       }} />
                     </div>
+                  </div>
+                )}
+
+                {/* Registros do serviço */}
+                {projSessions.length > 0 && !logging && (
+                  <div style={{ marginTop: 12 }}>
+                    <button
+                      onClick={() => setExpandedId(expanded ? null : proj.id)}
+                      style={{
+                        background: "none", border: "none", color: C.muted,
+                        fontSize: 11, fontWeight: 600, letterSpacing: "0.07em",
+                        textTransform: "uppercase", cursor: "pointer", padding: 0,
+                        display: "flex", alignItems: "center", gap: 4,
+                      }}
+                    >
+                      {expanded ? "▾" : "▸"} Registros ({projSessions.length})
+                    </button>
+
+                    {expanded && (
+                      <div style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 10 }}>
+                        {projSessions.map((sess, i) => {
+                          const last = i === projSessions.length - 1;
+                          return (
+                            <div key={sess.id} style={{
+                              display: "flex", alignItems: "center", gap: 8,
+                              paddingBottom: last ? 0 : 8, marginBottom: last ? 0 : 8,
+                              borderBottom: last ? "none" : `1px solid ${C.border}`,
+                            }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 12, color: C.text, fontWeight: 500 }}>{sess.note || "Sem descrição"}</div>
+                                <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
+                                  {fmtDate(sess.date)} · {fmtTime(sess.duration)}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  if (window.confirm("Remover este registro?")) deleteSession(sess.id);
+                                }}
+                                style={{
+                                  background: C.red + "18", border: `1px solid ${C.red}33`,
+                                  color: C.red, borderRadius: 6, width: 28, height: 28,
+                                  fontSize: 13, display: "flex", alignItems: "center",
+                                  justifyContent: "center", flexShrink: 0,
+                                }}>✕</button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -424,7 +476,7 @@
 
     /* ── DASHBOARD ── */
 
-    function DashboardModule({ projects, clients, sessions }) {
+    function DashboardModule({ projects, clients, sessions, deleteSession }) {
       const today = new Date().toISOString().split("T")[0];
       const month = today.slice(0, 7);
       const todaySess = sessions.filter(s => s.date === today);
@@ -511,7 +563,7 @@
             <h3 style={{ fontSize: 13, fontWeight: 700, fontFamily: "'Syne', sans-serif", marginBottom: 12 }}>Histórico recente</h3>
             {sessions.length === 0 ? (
               <div style={{ textAlign: "center", padding: "14px 0", color: C.faint, fontSize: 13 }}>
-                Nenhum registro ainda. Lance horas em um projeto.
+                Nenhum registro ainda. Lance horas em um serviço.
               </div>
             ) : sessions.slice(0, 5).map((s, i) => {
               const p = projects.find(x => x.id === s.projectId);
@@ -529,6 +581,14 @@
                     <div style={{ fontSize: 11, color: C.muted }}>{fmtDate(s.date)} · {s.note || "sem nota"}</div>
                   </div>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: C.green, flexShrink: 0 }}>{fmtTime(s.duration)}</div>
+                  <button
+                    onClick={() => { if (window.confirm("Remover este registro?")) deleteSession(s.id); }}
+                    style={{
+                      background: C.red + "18", border: `1px solid ${C.red}33`,
+                      color: C.red, borderRadius: 6, width: 28, height: 28, fontSize: 13,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      flexShrink: 0, marginLeft: 4,
+                    }}>✕</button>
                 </div>
               );
             })}
@@ -684,7 +744,7 @@
 
     const TABS = [
       { id: "dashboard", label: "Dashboard", icon: "◈" },
-      { id: "projects",  label: "Projetos",  icon: "◫" },
+      { id: "projects",  label: "Serviços",  icon: "◫" },
       { id: "clients",   label: "Clientes",  icon: "◉" },
     ];
 
@@ -698,6 +758,10 @@
       const addSession = ({ projectId, date, duration, note }) => {
         setSessions(s => [{ id: Date.now(), projectId, date, duration, note }, ...s]
           .sort((a, b) => b.date.localeCompare(a.date)));
+      };
+
+      const deleteSession = (id) => {
+        setSessions(s => s.filter(x => x.id !== id));
       };
 
       return (
@@ -756,8 +820,8 @@
             flex: 1, padding: "16px 16px",
             paddingBottom: `calc(24px + env(safe-area-inset-bottom))`,
           }}>
-            {tab === "dashboard" && <DashboardModule projects={projects} clients={clients} sessions={sessions} />}
-            {tab === "projects"  && <ProjectsModule  projects={projects} setProjects={setProjects} clients={clients} sessions={sessions} setSessions={addSession} />}
+            {tab === "dashboard" && <DashboardModule projects={projects} clients={clients} sessions={sessions} deleteSession={deleteSession} />}
+            {tab === "projects"  && <ProjectsModule  projects={projects} setProjects={setProjects} clients={clients} sessions={sessions} setSessions={addSession} deleteSession={deleteSession} />}
             {tab === "clients"   && <ClientsModule   clients={clients} setClients={setClients} projects={projects} sessions={sessions} />}
           </div>
 
